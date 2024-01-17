@@ -1,28 +1,28 @@
 package com.spoonofcode.routes
 
-import com.spoonofcode.dao.ProfileDAO
+import com.spoonofcode.dao.UserDAO
 import com.spoonofcode.data.model.Profile
+import com.spoonofcode.data.model.User
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import org.jetbrains.exposed.exceptions.ExposedSQLException
+import io.ktor.server.util.*
 import org.koin.ktor.ext.get
 
-fun Route.profiles(profileDAO: ProfileDAO = get()) {
-    route("/profiles") {
+fun Route.users(userDAO: UserDAO = get()) {
+    route("/users") {
         get("/") {
-            val profiles = profileDAO.readAllProfiles()
-            call.respond(profiles)
+            call.respond(userDAO.readAllUsers())
         }
 
         get("/{id}") {
-            val profileId = call.parameters["id"]?.toInt()
+            val userId = call.parameters["id"]?.toInt()
 
-            if (profileId != null) {
+            if (userId != null) {
                 try {
-                    val item = profileDAO.readProfile(id = profileId)
+                    val item = userDAO.readUser(userId)
                     if (item != null) {
                         call.respond(item)
                     } else {
@@ -37,25 +37,24 @@ fun Route.profiles(profileDAO: ProfileDAO = get()) {
         }
 
         post("/") {
-            val newProfile = call.receive<Profile>()
-            try {
-                val result = profileDAO.createProfile(profile = newProfile)
-                result?.let {
-                    call.respond(HttpStatusCode.Created, it)
-                } ?: call.respond(HttpStatusCode.NotImplemented, "Error adding profile")
-            } catch (e: ExposedSQLException) {
-                call.respond(HttpStatusCode.BadRequest, e.message ?: "SQL Exception!!")
-            }
+            val formParameters = call.receiveParameters()
+            val title = formParameters.getOrFail("title")
+            val body = formParameters.getOrFail("body")
+            val newUser = call.receive<User>() // TODO #1 Change to uuid and auto id creation
+//            val newUserId = users.size + 1
+//            newUser.id = newUserId
+            userDAO.createUser(newUser.firstName, newUser.lastName)
+            call.respond(HttpStatusCode.Created, newUser)
         }
 
         put("/{id}") {
-            val profileId = call.parameters["id"]?.toInt()
-            if (profileId != null) {
+            val userId = call.parameters["id"]?.toInt()
+            if (userId != null) {
                 try {
-                    val existingProfile = profileDAO.readProfile(profileId)
+                    val existingProfile = userDAO.readUser(userId)
                     if (existingProfile != null) {
                         val updatedProfile = call.receive<Profile>()
-                        profileDAO.updateProfile(updatedProfile)
+//                        users[userId-1] = updatedProfile.copy(id = userId) // TODO #1 Set proper element index from list
                         call.respond(HttpStatusCode.OK, updatedProfile)
                     } else {
                         call.respond(HttpStatusCode.NotFound, "Profile not found")
@@ -69,10 +68,10 @@ fun Route.profiles(profileDAO: ProfileDAO = get()) {
         }
 
         delete("/{id}") {
-            val profileId = call.parameters["id"]?.toInt()
-            if (profileId != null) {
+            val userId = call.parameters["id"]?.toInt()
+            if (userId != null) {
                 try {
-                    val deletedProfile = profileDAO.deleteProfile(profileId)
+                    val deletedProfile = userDAO.deleteUser(userId) // TODO #1 Set proper element index from list
                     if (deletedProfile != null) {
                         call.respond(HttpStatusCode.OK, "Profile deleted")
                     } else {

@@ -1,0 +1,5 @@
+--CREATE TABLE IF NOT EXISTS profiles (
+--    id SERIAL PRIMARY KEY,
+--    description VARCHAR(255) NOT NULL,
+--    address VARCHAR(255) NOT NULL
+--);
