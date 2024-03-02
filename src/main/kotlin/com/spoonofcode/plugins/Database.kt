@@ -3,6 +3,7 @@ package com.spoonofcode.plugins
 import com.spoonofcode.data.model.Profiles
 import com.spoonofcode.data.model.Tasks
 import com.spoonofcode.data.model.Users
+import com.spoonofcode.data.model.updateTaskTrigger
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.server.application.*
@@ -19,6 +20,7 @@ fun Application.configureDatabases() {
 
     transaction(db) {
         SchemaUtils.create(Profiles, Users, Tasks)
+        updateTaskTrigger()
     }
 }
 

@@ -35,7 +35,7 @@ fun Route.tasks(taskDAO: TaskDAO = get()) {
         }
 
         post("/") {
-            val newTask = call.receive<TaskRequest>() // TODO #1 Change to uuid and auto id creation
+            val newTask = call.receive<TaskRequest>()
             val createdTaskId = taskDAO.createTask(newTask).value
             call.respond(HttpStatusCode.Created, "Created Task with ID: $createdTaskId")
         }
@@ -44,11 +44,10 @@ fun Route.tasks(taskDAO: TaskDAO = get()) {
             val taskId = call.parameters["id"]?.toInt()
             if (taskId != null) {
                 try {
-                    val existingTask = taskDAO.readTask(taskId)
-                    if (existingTask != null) {
-                        val updatedTask = call.receive<TaskRequest>()
-//                        tasks[taskId-1] = updatedTask.copy(id = taskId) // TODO #1 Set proper element index from list
-                        call.respond(HttpStatusCode.OK, updatedTask)
+                    val updatedTask = call.receive<TaskRequest>()
+                    val taskHasBeenUpdated = taskDAO.updateTask(taskId, updatedTask)
+                    if (taskHasBeenUpdated) {
+                        call.respond(HttpStatusCode.OK, "Task with ID: $taskId has been updated")
                     } else {
                         call.respond(HttpStatusCode.NotFound, "Task not found")
                     }
@@ -64,8 +63,8 @@ fun Route.tasks(taskDAO: TaskDAO = get()) {
             val taskId = call.parameters["id"]?.toInt()
             if (taskId != null) {
                 try {
-                    val deletedTask = taskDAO.deleteTask(taskId) // TODO #1 Set proper element index from list
-                    if (deletedTask != null) {
+                    val taskHasBeenDeleted = taskDAO.deleteTask(taskId)
+                    if (taskHasBeenDeleted) {
                         call.respond(HttpStatusCode.OK, "Task deleted")
                     } else {
                         call.respond(HttpStatusCode.NotFound, "Task not found")

@@ -11,7 +11,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 interface TaskDAO {
     suspend fun createTask(taskRequest: TaskRequest): EntityID<Int>
     suspend fun readTask(id: Int): TaskResponse?
-    suspend fun updateTask(id: Int, description: String): Boolean
+    suspend fun updateTask(id: Int, taskRequest: TaskRequest): Boolean
     suspend fun deleteTask(id: Int): Boolean
     suspend fun readAllTasks(): List<TaskResponse>
 }
@@ -30,9 +30,10 @@ class TaskDAOImpl : TaskDAO {
             .singleOrNull()
     }
 
-    override suspend fun updateTask(id: Int, description: String): Boolean = dbQuery {
+    override suspend fun updateTask(id: Int, taskRequest: TaskRequest): Boolean = dbQuery {
         Tasks.update({ Tasks.id eq id }) {
-            it[Tasks.description] = description
+            it[description] = taskRequest.description
+            it[isCompleted] = taskRequest.isCompleted
         } > 0
     }
 
