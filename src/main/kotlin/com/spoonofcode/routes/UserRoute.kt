@@ -1,7 +1,6 @@
 package com.spoonofcode.routes
 
 import com.spoonofcode.dao.UserDAO
-import com.spoonofcode.data.model.Profile
 import com.spoonofcode.data.model.User
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -26,7 +25,7 @@ fun Route.users(userDAO: UserDAO = get()) {
                     if (item != null) {
                         call.respond(item)
                     } else {
-                        call.respond(HttpStatusCode.NotFound, "Profile not found")
+                        call.respond(HttpStatusCode.NotFound, "User not found")
                     }
                 } catch (e: IllegalArgumentException) {
                     call.respond(HttpStatusCode.BadRequest, "Invalid Id format")
@@ -37,12 +36,7 @@ fun Route.users(userDAO: UserDAO = get()) {
         }
 
         post("/") {
-            val formParameters = call.receiveParameters()
-            val title = formParameters.getOrFail("title")
-            val body = formParameters.getOrFail("body")
             val newUser = call.receive<User>() // TODO #1 Change to uuid and auto id creation
-//            val newUserId = users.size + 1
-//            newUser.id = newUserId
             userDAO.createUser(newUser.firstName, newUser.lastName)
             call.respond(HttpStatusCode.Created, newUser)
         }
@@ -51,13 +45,13 @@ fun Route.users(userDAO: UserDAO = get()) {
             val userId = call.parameters["id"]?.toInt()
             if (userId != null) {
                 try {
-                    val existingProfile = userDAO.readUser(userId)
-                    if (existingProfile != null) {
-                        val updatedProfile = call.receive<Profile>()
-//                        users[userId-1] = updatedProfile.copy(id = userId) // TODO #1 Set proper element index from list
-                        call.respond(HttpStatusCode.OK, updatedProfile)
+                    val existingUser = userDAO.readUser(userId)
+                    if (existingUser != null) {
+                        val updatedUser = call.receive<User>()
+//                        users[userId-1] = updatedUser.copy(id = userId) // TODO #1 Set proper element index from list
+                        call.respond(HttpStatusCode.OK, updatedUser)
                     } else {
-                        call.respond(HttpStatusCode.NotFound, "Profile not found")
+                        call.respond(HttpStatusCode.NotFound, "User not found")
                     }
                 } catch (e: IllegalArgumentException) {
                     call.respond(HttpStatusCode.BadRequest, "Invalid Id format")
@@ -71,11 +65,11 @@ fun Route.users(userDAO: UserDAO = get()) {
             val userId = call.parameters["id"]?.toInt()
             if (userId != null) {
                 try {
-                    val deletedProfile = userDAO.deleteUser(userId) // TODO #1 Set proper element index from list
-                    if (deletedProfile != null) {
-                        call.respond(HttpStatusCode.OK, "Profile deleted")
+                    val deletedUser = userDAO.deleteUser(userId) // TODO #1 Set proper element index from list
+                    if (deletedUser != null) {
+                        call.respond(HttpStatusCode.OK, "User deleted")
                     } else {
-                        call.respond(HttpStatusCode.NotFound, "Profile not found")
+                        call.respond(HttpStatusCode.NotFound, "User not found")
                     }
                 } catch (e: IllegalArgumentException) {
                     call.respond(HttpStatusCode.BadRequest, "Invalid Id format")

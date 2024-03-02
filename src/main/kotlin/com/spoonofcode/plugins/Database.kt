@@ -1,6 +1,7 @@
 package com.spoonofcode.plugins
 
 import com.spoonofcode.data.model.Profiles
+import com.spoonofcode.data.model.Tasks
 import com.spoonofcode.data.model.Users
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
@@ -17,7 +18,7 @@ fun Application.configureDatabases() {
     val db = Database.connect(provideDataSource(jdbcUrl, driverClass))
 
     transaction(db) {
-        SchemaUtils.create(Profiles, Users)
+        SchemaUtils.create(Profiles, Users, Tasks)
     }
 }
 
@@ -33,6 +34,4 @@ private fun provideDataSource(url: String, driverClass: String): HikariDataSourc
     return HikariDataSource(hikariConfig)
 }
 
-suspend fun <T> dbQuery(block: suspend () -> T): T {
-    return newSuspendedTransaction(Dispatchers.IO) { block() }
-}
+suspend fun <T> dbQuery(block: suspend () -> T): T = newSuspendedTransaction(Dispatchers.IO) { block() }

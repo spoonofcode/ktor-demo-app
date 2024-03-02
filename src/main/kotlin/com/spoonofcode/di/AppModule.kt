@@ -1,9 +1,6 @@
 package com.spoonofcode.di
 
-import com.spoonofcode.dao.ProfileDAO
-import com.spoonofcode.dao.ProfileDAOImpl
-import com.spoonofcode.dao.UserDAO
-import com.spoonofcode.dao.UserDAOImpl
+import com.spoonofcode.dao.*
 import org.koin.dsl.module
 
 val appModule = module {
@@ -12,5 +9,9 @@ val appModule = module {
     }
     single<ProfileDAO> {
         ProfileDAOImpl()
+    }
+
+    single<TaskDAO> {
+        TaskDAOImpl()
     }
 }
