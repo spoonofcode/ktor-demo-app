@@ -1,27 +1,32 @@
 package com.spoonofcode.routes
 
 import com.spoonofcode.dao.UserDAO
-import com.spoonofcode.data.model.User
+import com.spoonofcode.data.model.UserRequest
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.server.util.*
 import org.koin.ktor.ext.get
 
 fun Route.users(userDAO: UserDAO = get()) {
     route("/users") {
+        post("/") {
+            val newUser = call.receive<UserRequest>()
+            val createdUserId = userDAO.createUser(newUser).value
+            call.respond(HttpStatusCode.Created, "Created User with ID: $createdUserId")
+        }
+
         get("/") {
-            call.respond(userDAO.readAllUsers())
+            call.respond(userDAO.getAllUsers())
         }
 
         get("/{id}") {
-            val userId = call.parameters["id"]?.toInt()
+            val userId = call.parameters["id"]?.toIntOrNull()
 
             if (userId != null) {
                 try {
-                    val item = userDAO.readUser(userId)
+                    val item = userDAO.getUser(userId)
                     if (item != null) {
                         call.respond(item)
                     } else {
@@ -35,21 +40,14 @@ fun Route.users(userDAO: UserDAO = get()) {
             }
         }
 
-        post("/") {
-            val newUser = call.receive<User>() // TODO #1 Change to uuid and auto id creation
-            userDAO.createUser(newUser.firstName, newUser.lastName)
-            call.respond(HttpStatusCode.Created, newUser)
-        }
-
         put("/{id}") {
-            val userId = call.parameters["id"]?.toInt()
+            val userId = call.parameters["id"]?.toIntOrNull()
             if (userId != null) {
                 try {
-                    val existingUser = userDAO.readUser(userId)
-                    if (existingUser != null) {
-                        val updatedUser = call.receive<User>()
-//                        users[userId-1] = updatedUser.copy(id = userId) // TODO #1 Set proper element index from list
-                        call.respond(HttpStatusCode.OK, updatedUser)
+                    val updatedUser = call.receive<UserRequest>()
+                    val userHasBeenUpdated = userDAO.updateUser(userId, updatedUser)
+                    if (userHasBeenUpdated) {
+                        call.respond(HttpStatusCode.OK, "User with ID: $userId has been updated")
                     } else {
                         call.respond(HttpStatusCode.NotFound, "User not found")
                     }
@@ -62,11 +60,11 @@ fun Route.users(userDAO: UserDAO = get()) {
         }
 
         delete("/{id}") {
-            val userId = call.parameters["id"]?.toInt()
+            val userId = call.parameters["id"]?.toIntOrNull()
             if (userId != null) {
                 try {
-                    val deletedUser = userDAO.deleteUser(userId) // TODO #1 Set proper element index from list
-                    if (deletedUser != null) {
+                    val userHasBeenDeleted = userDAO.deleteUser(userId)
+                    if (userHasBeenDeleted) {
                         call.respond(HttpStatusCode.OK, "User deleted")
                     } else {
                         call.respond(HttpStatusCode.NotFound, "User not found")

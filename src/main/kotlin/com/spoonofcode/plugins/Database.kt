@@ -1,6 +1,5 @@
 package com.spoonofcode.plugins
 
-import com.spoonofcode.data.model.Profiles
 import com.spoonofcode.data.model.Tasks
 import com.spoonofcode.data.model.Users
 import com.spoonofcode.data.model.updateTaskTrigger
@@ -19,7 +18,7 @@ fun Application.configureDatabases() {
     val db = Database.connect(provideDataSource(jdbcUrl, driverClass))
 
     transaction(db) {
-        SchemaUtils.create(Profiles, Users, Tasks)
+        SchemaUtils.create(Users, Tasks)
         updateTaskTrigger()
     }
 }

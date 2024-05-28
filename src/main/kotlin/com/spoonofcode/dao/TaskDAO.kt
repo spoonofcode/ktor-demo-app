@@ -10,39 +10,48 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 
 interface TaskDAO {
     suspend fun createTask(taskRequest: TaskRequest): EntityID<Int>
-    suspend fun readTask(id: Int): TaskResponse?
+    suspend fun getTask(id: Int): TaskResponse?
+    suspend fun getAllTasks(): List<TaskResponse>
+    suspend fun getAllTasksByUserId(userId: Int): List<TaskResponse>
     suspend fun updateTask(id: Int, taskRequest: TaskRequest): Boolean
     suspend fun deleteTask(id: Int): Boolean
-    suspend fun readAllTasks(): List<TaskResponse>
 }
 
 class TaskDAOImpl : TaskDAO {
     override suspend fun createTask(taskRequest: TaskRequest): EntityID<Int> = dbQuery {
         Tasks.insertAndGetId {
             it[description] = taskRequest.description
+            it[userId] = taskRequest.userId
         }
     }
 
-    override suspend fun readTask(id: Int): TaskResponse? = dbQuery {
+    override suspend fun getTask(id: Int): TaskResponse? = dbQuery {
         Tasks
             .selectAll().where { Tasks.id eq id }
             .map(::resultRowToTask)
             .singleOrNull()
     }
 
+    override suspend fun getAllTasks(): List<TaskResponse> = dbQuery {
+        Tasks.selectAll().map(::resultRowToTask)
+    }
+
+    override suspend fun getAllTasksByUserId(userId: Int): List<TaskResponse> = dbQuery {
+        Tasks
+            .selectAll().where { Tasks.userId eq userId }
+            .map(::resultRowToTask)
+    }
+
     override suspend fun updateTask(id: Int, taskRequest: TaskRequest): Boolean = dbQuery {
         Tasks.update({ Tasks.id eq id }) {
             it[description] = taskRequest.description
             it[isCompleted] = taskRequest.isCompleted
+            it[userId] = taskRequest.userId
         } > 0
     }
 
     override suspend fun deleteTask(id: Int): Boolean = dbQuery {
         Tasks.deleteWhere { Tasks.id eq id } > 0
-    }
-
-    override suspend fun readAllTasks(): List<TaskResponse> = dbQuery {
-        Tasks.selectAll().map(::resultRowToTask)
     }
 
     private fun resultRowToTask(row: ResultRow): TaskResponse = TaskResponse(
@@ -51,5 +60,7 @@ class TaskDAOImpl : TaskDAO {
         creationDate = row[Tasks.creationDate],
         updateDate = row[Tasks.updateDate],
         isCompleted = row[Tasks.isCompleted],
+//        category = row[Tasks.category],
+        userId = row[Tasks.userId].value,
     )
 }

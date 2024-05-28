@@ -11,16 +11,22 @@ import org.koin.ktor.ext.get
 
 fun Route.tasks(taskDAO: TaskDAO = get()) {
     route("/tasks") {
+        post("/") {
+            val newTask = call.receive<TaskRequest>()
+            val createdTaskId = taskDAO.createTask(newTask).value
+            call.respond(HttpStatusCode.Created, "Created Task with ID: $createdTaskId")
+        }
+
         get("/") {
-            call.respond(taskDAO.readAllTasks())
+            call.respond(taskDAO.getAllTasks())
         }
 
         get("/{id}") {
-            val taskId = call.parameters["id"]?.toInt()
+            val taskId = call.parameters["id"]?.toIntOrNull()
 
             if (taskId != null) {
                 try {
-                    val item = taskDAO.readTask(taskId)
+                    val item = taskDAO.getTask(taskId)
                     if (item != null) {
                         call.respond(item)
                     } else {
@@ -34,14 +40,27 @@ fun Route.tasks(taskDAO: TaskDAO = get()) {
             }
         }
 
-        post("/") {
-            val newTask = call.receive<TaskRequest>()
-            val createdTaskId = taskDAO.createTask(newTask).value
-            call.respond(HttpStatusCode.Created, "Created Task with ID: $createdTaskId")
+        get("/user/{userId}") {
+            val userId = call.parameters["userId"]?.toIntOrNull()
+
+            if (userId != null) {
+                try {
+                    val item = taskDAO.getAllTasksByUserId(userId)
+                    if (item != null) {
+                        call.respond(item)
+                    } else {
+                        call.respond(HttpStatusCode.NotFound, "Task by userId = $userId not found")
+                    }
+                } catch (e: IllegalArgumentException) {
+                    call.respond(HttpStatusCode.BadRequest, "Invalid userId format")
+                }
+            } else {
+                call.respond(HttpStatusCode.BadRequest, "Missing 'userId' parameter")
+            }
         }
 
         put("/{id}") {
-            val taskId = call.parameters["id"]?.toInt()
+            val taskId = call.parameters["id"]?.toIntOrNull()
             if (taskId != null) {
                 try {
                     val updatedTask = call.receive<TaskRequest>()
@@ -60,7 +79,7 @@ fun Route.tasks(taskDAO: TaskDAO = get()) {
         }
 
         delete("/{id}") {
-            val taskId = call.parameters["id"]?.toInt()
+            val taskId = call.parameters["id"]?.toIntOrNull()
             if (taskId != null) {
                 try {
                     val taskHasBeenDeleted = taskDAO.deleteTask(taskId)

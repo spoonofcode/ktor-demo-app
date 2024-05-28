@@ -15,7 +15,7 @@ data class TaskRequest(
     val description: String,
     val isCompleted: Boolean = false,
 //    val category: TaskCategory,
-//    val userId: Int,
+    val userId: Int,
 )
 
 @Serializable
@@ -26,7 +26,7 @@ data class TaskResponse(
     val updateDate: LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.UTC),
     val isCompleted: Boolean,
 //    val category: TaskCategory,
-//    val userId: Int,
+    val userId: Int,
 )
 
 object Tasks : IntIdTable() {
@@ -35,7 +35,7 @@ object Tasks : IntIdTable() {
     val updateDate = datetime("update_date").defaultExpression(CurrentDateTime)
     val isCompleted = bool("is_completed").default(false)
 //    val category = reference("category_id", TaskCategories)
-//    val userId = reference("user_id", Users)
+    val userId = reference("user_id", Users)
 }
 
 // We need trigger to update updateDate value on each row update
