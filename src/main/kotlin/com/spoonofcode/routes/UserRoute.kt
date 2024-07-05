@@ -1,7 +1,7 @@
 package com.spoonofcode.routes
 
-import com.spoonofcode.dao.UserDAO
-import com.spoonofcode.data.model.UserRequest
+import com.spoonofcode.new.UserRepository
+import com.spoonofcode.new.UserRequest
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -9,16 +9,12 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.koin.ktor.ext.get
 
-fun Route.users(userDAO: UserDAO = get()) {
+fun Route.users(userRepository: UserRepository = get()) {
     route("/users") {
         post("/") {
             val newUser = call.receive<UserRequest>()
-            val createdUserId = userDAO.createUser(newUser).value
+            val createdUserId = userRepository.create(newUser).id
             call.respond(HttpStatusCode.Created, "Created User with ID: $createdUserId")
-        }
-
-        get("/") {
-            call.respond(userDAO.getAllUsers())
         }
 
         get("/{id}") {
@@ -26,7 +22,7 @@ fun Route.users(userDAO: UserDAO = get()) {
 
             if (userId != null) {
                 try {
-                    val item = userDAO.getUser(userId)
+                    val item = userRepository.read(userId)
                     if (item != null) {
                         call.respond(item)
                     } else {
@@ -45,7 +41,7 @@ fun Route.users(userDAO: UserDAO = get()) {
             if (userId != null) {
                 try {
                     val updatedUser = call.receive<UserRequest>()
-                    val userHasBeenUpdated = userDAO.updateUser(userId, updatedUser)
+                    val userHasBeenUpdated = userRepository.update(userId, updatedUser)
                     if (userHasBeenUpdated) {
                         call.respond(HttpStatusCode.OK, "User with ID: $userId has been updated")
                     } else {
@@ -63,7 +59,7 @@ fun Route.users(userDAO: UserDAO = get()) {
             val userId = call.parameters["id"]?.toIntOrNull()
             if (userId != null) {
                 try {
-                    val userHasBeenDeleted = userDAO.deleteUser(userId)
+                    val userHasBeenDeleted = userRepository.delete(userId)
                     if (userHasBeenDeleted) {
                         call.respond(HttpStatusCode.OK, "User deleted")
                     } else {
@@ -75,6 +71,10 @@ fun Route.users(userDAO: UserDAO = get()) {
             } else {
                 call.respond(HttpStatusCode.BadRequest, "Missing 'id' parameter")
             }
+        }
+
+        get("/") {
+            call.respond(userRepository.readAll())
         }
     }
 }

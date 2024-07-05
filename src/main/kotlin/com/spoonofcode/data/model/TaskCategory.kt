@@ -9,6 +9,6 @@ data class TaskCategory(
     val name: String,
 )
 
-object TaskCategories : IntIdTable() {
+object TaskCategoryTable : IntIdTable() {
     val name = varchar("name", 128)
 }

@@ -1,8 +1,8 @@
 package com.spoonofcode.plugins
 
-import com.spoonofcode.data.model.Tasks
-import com.spoonofcode.data.model.Users
-import com.spoonofcode.data.model.updateTaskTrigger
+import com.spoonofcode.new.Tasks
+import com.spoonofcode.new.Users
+import com.spoonofcode.new.updateTaskTrigger
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.server.application.*
