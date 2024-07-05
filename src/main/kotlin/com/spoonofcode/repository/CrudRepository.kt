@@ -1,4 +1,4 @@
-package com.spoonofcode.new
+package com.spoonofcode.repository
 
 import com.spoonofcode.plugins.dbQuery
 import org.jetbrains.exposed.dao.id.IntIdTable

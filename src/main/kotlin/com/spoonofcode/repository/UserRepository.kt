@@ -1,4 +1,8 @@
-package com.spoonofcode.new
+package com.spoonofcode.repository
+
+import com.spoonofcode.data.model.UserRequest
+import com.spoonofcode.data.model.UserResponse
+import com.spoonofcode.data.model.Users
 
 class UserRepository : GenericCrudRepository<Users, UserRequest, UserResponse>(
     Users,

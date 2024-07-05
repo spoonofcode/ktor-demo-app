@@ -1,6 +1,5 @@
 package com.spoonofcode.data.model
 
-import com.spoonofcode.new.Users
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone

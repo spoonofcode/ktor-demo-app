@@ -1,7 +1,7 @@
 package com.spoonofcode.routes
 
-import com.spoonofcode.new.TaskRepository
-import com.spoonofcode.new.TaskRequest
+import com.spoonofcode.repository.TaskRepository
+import com.spoonofcode.data.model.TaskRequest
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*

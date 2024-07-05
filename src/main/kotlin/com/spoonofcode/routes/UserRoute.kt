@@ -1,7 +1,7 @@
 package com.spoonofcode.routes
 
-import com.spoonofcode.new.UserRepository
-import com.spoonofcode.new.UserRequest
+import com.spoonofcode.repository.UserRepository
+import com.spoonofcode.data.model.UserRequest
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*

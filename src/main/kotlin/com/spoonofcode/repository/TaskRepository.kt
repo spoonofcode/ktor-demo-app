@@ -1,5 +1,8 @@
-package com.spoonofcode.new
+package com.spoonofcode.repository
 
+import com.spoonofcode.data.model.TaskRequest
+import com.spoonofcode.data.model.TaskResponse
+import com.spoonofcode.data.model.Tasks
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 

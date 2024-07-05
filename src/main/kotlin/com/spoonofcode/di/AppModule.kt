@@ -1,25 +1,11 @@
 package com.spoonofcode.di
 
-import com.spoonofcode.dao.TaskDAO
-import com.spoonofcode.dao.TaskDAOImpl
-import com.spoonofcode.dao.UserDAO
-import com.spoonofcode.dao.UserDAOImpl
-import com.spoonofcode.new.TaskRepository
-import com.spoonofcode.new.UserRepository
+import com.spoonofcode.repository.TaskRepository
+import com.spoonofcode.repository.UserRepository
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
 val appModule = module {
-    single<UserDAO> {
-        UserDAOImpl()
-    }
-    single<TaskDAO> {
-        TaskDAOImpl()
-    }
-
-    single{
-        UserRepository()
-    }
-    single{
-        TaskRepository()
-    }
+    singleOf(::UserRepository)
+    singleOf(::TaskRepository)
 }
