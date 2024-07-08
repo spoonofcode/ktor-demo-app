@@ -6,6 +6,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.dao.id.IntIdTable
+import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.kotlin.datetime.CurrentDateTime
 import org.jetbrains.exposed.sql.kotlin.datetime.datetime
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -42,6 +43,19 @@ object Tasks : IntIdTable() {
 // We need trigger to update updateDate value on each row update
 // In Exposed we don't have now any function like updateExpression
 // https://github.com/JetBrains/Exposed/issues/89
+//fun updateTaskTrigger() {
+//    val sql = """
+//        CREATE TRIGGER update_date_trigger
+//        BEFORE UPDATE ON ${Tasks.tableName}
+//        FOR EACH ROW
+//        SET NEW.update_date = CURRENT_TIMESTAMP(6);
+//    """.trimIndent()
+//
+//    transaction {
+//        exec(sql)
+//    }
+//}
+
 fun updateTaskTrigger() {
     val sql = """
         CREATE TRIGGER update_date_trigger
@@ -50,8 +64,16 @@ fun updateTaskTrigger() {
         SET NEW.update_date = CURRENT_TIMESTAMP(6);
     """.trimIndent()
 
-    transaction {
-        exec(sql)
+    try {
+        transaction {
+            exec(sql)
+        }
+    } catch (e: ExposedSQLException) {
+        if (e.message?.contains("Trigger already exists") == true) {
+            println("Trigger 'update_date_trigger' already exists.")
+        } else {
+            throw e // Rethrow the exception if it's not the expected "trigger exists" error
+        }
     }
 }
 
