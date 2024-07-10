@@ -7,10 +7,9 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
-inline fun <reified RQ : Any, reified RS : Any, E : Throwable> Route.crudRoute(
+internal inline fun <reified RQ : Any, reified RS : Any> Route.crudRoute(
     basePath: String,
     repository: CrudRepository<RQ, RS>,
-    crossinline errorMessage: (Throwable) -> E
 ) {
     route(basePath) {
         post("/") {
@@ -84,5 +83,12 @@ inline fun <reified RQ : Any, reified RS : Any, E : Throwable> Route.crudRoute(
         get("/") {
             call.respond(repository.readAll())
         }
+    }
+}
+
+internal fun errorMessage(e: Throwable): Throwable {
+    return when (e) {
+        is IllegalArgumentException -> IllegalArgumentException("Invalid Id format")
+        else -> e
     }
 }
