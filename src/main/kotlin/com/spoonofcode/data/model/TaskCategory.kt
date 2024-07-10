@@ -4,11 +4,16 @@ import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.dao.id.IntIdTable
 
 @Serializable
-data class TaskCategory(
-    val id: Int = 0,
+data class TaskCategoryRequest(
     val name: String,
 )
 
-object TaskCategoryTable : IntIdTable() {
+@Serializable
+data class TaskCategoryResponse(
+    val id: Int,
+    val name: String,
+)
+
+object TaskCategories : IntIdTable() {
     val name = varchar("name", 128)
 }

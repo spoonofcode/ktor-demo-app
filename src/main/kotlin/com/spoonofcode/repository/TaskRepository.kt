@@ -22,7 +22,7 @@ class TaskRepository : GenericCrudRepository<Tasks, TaskRequest, TaskResponse>(
             creationDate = row[Tasks.creationDate],
             updateDate = row[Tasks.updateDate],
             isCompleted = row[Tasks.isCompleted],
-//            category = row[Tasks.category],
+            categoryId = row[Tasks.categoryId].value,
             userId = row[Tasks.userId].value,
         )
     }

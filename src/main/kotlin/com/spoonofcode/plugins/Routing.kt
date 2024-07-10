@@ -1,7 +1,6 @@
 package com.spoonofcode.plugins
 
-//import com.spoonofcode.routes.old.tasks
-//import com.spoonofcode.routes.old.users
+import com.spoonofcode.routes.taskCategories
 import com.spoonofcode.routes.tasks
 import com.spoonofcode.routes.users
 import io.ktor.server.application.*
@@ -12,6 +11,7 @@ fun Application.configureRouting() {
     routing {
         users()
         tasks()
+        taskCategories()
         // Static plugin. Try to access `/static/index.html`
         static("/static") {
             resources("static")
